@@ -1,6 +1,5 @@
 import { title } from "@/components/primitives";
-import {Button, ButtonGroup} from "@heroui/button";
-import Link from 'next/link'
+import Buttons from "@/components/buttons";
 
 export default function Home() {
    return (
@@ -13,12 +12,7 @@ export default function Home() {
         </span>
       </div>
       <div className="flex flex-row items-center justify-center gap-4">
-          <Button color="primary" variant="flat" size="lg">
-            <Link href="/login">Log In</Link>
-          </Button>
-          <Button color="primary" variant="flat" size="lg">
-            <Link href="/singup">Sign Up</Link>
-          </Button>
+          <Buttons />
       </div>
       {/* Here would go more butifying and landing page stuff, so far aiming just for funcionality*/}
     </section>

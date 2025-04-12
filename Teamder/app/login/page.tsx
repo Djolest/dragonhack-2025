@@ -4,12 +4,8 @@ import {Form} from "@heroui/form";
 import {Input} from "@heroui/input";
 import {Button} from "@heroui/button";
 import { useState } from "react";
-import { useParams } from "next/navigation";
 
 export default function LogIn() {
-  const params = useParams();
-  const dynamicValue = params.origin === "login" ? "Log In" : "Sign Up";
-
   const [errors, setErrors] = useState({});
 
   const onSubmit = (e:any) => {
@@ -21,7 +17,7 @@ export default function LogIn() {
   };
   return (
     <div>
-      <h1>{dynamicValue}</h1>
+      <h1>Log in</h1>
       {/** I want 2 slide for Sing up and log in */}
       <Form 
       className="w-full max-w-xs flex flex-col gap-3"
@@ -29,10 +25,10 @@ export default function LogIn() {
       onSubmit={onSubmit}
     >
       <Input
-        label="Username"
+        label="Email"
         labelPlacement="outside"
-        name="username"
-        placeholder="Enter your username"
+        name="Email"
+        placeholder="Enter your email"
         isRequired
       />
       <Input
