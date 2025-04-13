@@ -16,7 +16,6 @@ const client = new Client()
     .setProject(dbProjectId);               // Your AppWrite project ID
 
 // Initialize services
-const account = new Account(client);
 const database = new Databases(client);
 
 // ===== MODELS =====
@@ -26,7 +25,7 @@ const SchUser = {
     name: '',
     email: '',
     pw: '',
-    pers: '',
+    personality: '',
 }
 
 const UserMemberships = {
@@ -34,7 +33,7 @@ const UserMemberships = {
     uid: '',
     tid: '',
     isPending: true,
-    isAccepted: false,
+    accepted: false,
 }
 
 const Team = {
@@ -77,11 +76,21 @@ async function login(email, password) {
 async function register(name, email, password) {
     try {
         // Create a new user with the provided details
-        const user = await account.create(ID.unique(), email, password, name);
+        const user = await database.createDocument(
+            dbId,
+            colUsers,
+            ID.unique(),
+            {
+                name: name,
+                email: email, // unique !!!
+                password: password,
+                personality: ''
+            }
+        );
         
         // Return the created user object
         return {
-            uid: user.uid,
+            uid: user.$id,
         };
     } catch (error) {
         console.error('Registration error:', error);
@@ -96,11 +105,11 @@ async function register(name, email, password) {
 async function updatePers(personality, userId) {
     try {
         // Update the user's personality in the database
-        const updatedUser = await database.updateDocument(dbId, colUsers, userId, { pers: personality });
+        const updatedUser = await database.updateDocument(dbId, colUsers, userId, { personality });
         
         // Return the updated user object
         return {
-            uid: updatedUser.id,
+            uid: updatedUser.$id,
         }
     } catch (error) {
         console.error('Update personality error:', error);
@@ -173,7 +182,7 @@ async function createTeam(name, userId) {
                 userId: userId,
                 teamId: team.$id,
                 isPending: false,
-                isAccepted: true
+                accepted: true
             }
         );
         
@@ -218,7 +227,7 @@ async function getMembers(teamId) {
                 uid: user.$id,
                 tid: teamId,
                 isPending: membership.isPending,
-                isAccepted: membership.isAccepted
+                accepted: membership.accepted
             };
         });
         
@@ -274,7 +283,7 @@ async function invite(email, teamId, userId) {
                 userId: targetUser.$id,
                 teamId: teamId,
                 isPending: true,
-                isAccepted: false
+                accepted: false
             }
         );
         
@@ -301,10 +310,10 @@ async function makeMember(teamId, userId) {
             dbId,
             colTeamMemberships,
             [
-                Query.equal('userId', userId),
-                Query.equal('teamId', teamId),
+                Query.equal('uid', userId),
+                Query.equal('tid', teamId),
                 Query.equal('isPending', true),
-                Query.equal('isAccepted', true)
+                Query.equal('accepted', true)
             ]
         );
         
@@ -321,7 +330,7 @@ async function makeMember(teamId, userId) {
             pendingMembership.documents[0].$id,
             {
                 isPending: false,
-                isAccepted: true
+                accepted: true
             }
         );
         
@@ -345,7 +354,7 @@ async function getPers(userId) {
         
         // Return the personality data
         return {
-            pers: user.personality || '{}'
+            personality: user.personality || '{}'
         };
     } catch (error) {
         console.error('Get personality error:', error);
