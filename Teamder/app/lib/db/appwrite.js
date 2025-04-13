@@ -45,7 +45,7 @@ const Team = {
 
 // ===== AUTH =====
 
-async function login(email, password) {
+export async function login(email, password, feedback, setUser) {
     try {
         // Find the user by email
         const user = await database.listDocuments(
@@ -61,13 +61,11 @@ async function login(email, password) {
             };
         }
         const userId = user.documents[0].$id;
-
-        return {
-            uid: userId,
-        }
+        feedback(200);
+        setUser(userId);
     } catch (error) {
         console.error('Login error:', error);
-        
+        feedback(400);
         // Return appropriate error message
         return {
             error: error.message || 'Authentication failed'

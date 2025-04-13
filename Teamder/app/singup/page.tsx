@@ -24,7 +24,7 @@ export default function SingUp() {
     const { username, email, password } = data;
     console.log(username, email, password);
     register(username, email, password, setSuccess, setUserID);
-    setTimeout(() => {}, 200);
+    setTimeout(() => {}, 300);
     if (userID.length > 0) {
       console.log("User ID: ", userID);
       // Redirect to the login page after successful registration

@@ -4,17 +4,30 @@ import {Form} from "@heroui/form";
 import {Input} from "@heroui/input";
 import {Button} from "@heroui/button";
 import { useState } from "react";
+import { FormEvent } from "react";
+import { login } from "@/app/lib/db/appwrite";
+import { useRouter } from 'next/navigation';
 
 
 
 export default function LogIn() {
   const [errors, setErrors] = useState({});
+  const [success, setSuccess] = useState(0);
+  const [userID, setUserID] = useState("");
+  const router = useRouter();
   const onSubmit = (e:any) => {
     e.preventDefault();
     const data = Object.fromEntries(new FormData(e.currentTarget));
-    // setUserID(200);
-    // Handle form submission and validation
-    // Set errors if needed: setErrors({ username: 'Invalid username' });
+    
+    const { email, password } = data;
+    console.log(email, password);
+    login(email, password, setSuccess, setUserID);
+    setTimeout(() => {}, 300);
+    if (userID.length > 0) {
+      console.log("User ID: ", userID);
+      // Redirect to the login page after successful registration
+      router.push(`/dashboard/${userID}`);
+    }
   };
   return (
     <div>
@@ -26,14 +39,14 @@ export default function LogIn() {
       onSubmit={onSubmit}
     >
       <Input
-        label="Email"
+        label="email"
         labelPlacement="outside"
-        name="Email"
+        name="email"
         placeholder="Enter your email"
         isRequired
       />
       <Input
-        label="Password"
+        label="password"
         labelPlacement="outside"
         name="password"
         type="password"
@@ -44,6 +57,8 @@ export default function LogIn() {
         Log In
       </Button>
     </Form>
+    {success == 200 ? <p>Log in successful!</p> : null} 
+    {success == 400 ? <p>Log in failed. Please try again.</p> : null}
     </div>
   );
 }
