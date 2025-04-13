@@ -11,8 +11,8 @@ export default async function ID( {
     params: Promise<{ id: string , team: string}>
   } ) {
     const { id, team } = await params;
-    const members = [{name: "Miha Slivnik", l:'/dashboard/67fb395c003bb54b7aa0/innovation'}, {name: "Jernej Slovak", l:'/dashboard/67fb395c003bb54b7aa0/sales'}, {name: "Development", l:'/dashboard/67fb395c003bb54b7aa0/development'}, {name: "C prevajalnik tim", l:'/dashboard/67fb395c003bb54b7aa0/cprevejalniki'}];
-    const pending = [{name: "Bostjan Krmelj", l:'/dashboard/67fb395c003bb54b7aa0/innovation/0987654898765'}, {name: "Zoran Jurisic", l:'/dashboard/67fb395c003bb54b7aa0/innovation/lk7ijh74y754678'}];
+    const members = [{name: "Melvin E. Conway", l:'/dashboard/67fb395c003bb54b7aa0/innovation'}, {name: "Dennis Ritchie", l:'/dashboard/67fb395c003bb54b7aa0/sales'}, {name: "Chris Lattner", l:'/dashboard/67fb395c003bb54b7aa0/development'}];
+    const pending = [{name: "Elon Musk", l:'/dashboard/67fb395c003bb54b7aa0/innovation/0987654898765'}, {name: "Polona Oblak", l:'/dashboard/67fb395c003bb54b7aa0/innovation/lk7ijh74y754678'}];
     // await all teams
     return (
         <div className="flex flex-col items-center justify-left gap-4 py-8 md:py-10">
