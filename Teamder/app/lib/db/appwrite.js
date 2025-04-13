@@ -145,8 +145,9 @@ export async function getTeams(userId, feedback, setTeams) {
         }
         
         // Set teams in state
-        feedback(200);
-        setTeams(formattedTeams);
+        //feedback(200);
+        //setTeams(formattedTeams);
+        return formattedTeams;
     } catch (error) {
         console.error('Get teams error:', error);
         feedback(400);
