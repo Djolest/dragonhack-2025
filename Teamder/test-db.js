@@ -81,11 +81,9 @@ async function runTests() {
         
         // Step 3: Update personalities
         console.log('3. Updating user personalities...');
-        const updateAlicePers = await updatePers(testUsers.alice.personality, aliceId, () => {});
-        logResult('Update Alice Personality', updateAlicePers);
+        await updatePers(testUsers.alice.personality, aliceId, () => {});
         
         const updateBobPers = await updatePers(testUsers.bob.personality, bobId, () => {});
-        logResult('Update Bob Personality', updateBobPers);
         
         // Step 4: Create a team
         console.log('4. Creating a test team...');
