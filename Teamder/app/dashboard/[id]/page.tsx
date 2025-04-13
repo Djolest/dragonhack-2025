@@ -1,18 +1,14 @@
-'use client';
-
-import { useState } from "react";
-import { useParams } from "next/navigation";
-
-export default async function Dashboard() {
-    const params = useParams();
-    const userId = params.id;
-    // const teams = await getTeams(userId);
+export default async function ID( {
+    params,
+  }: {
+    params: Promise<{ id: string }>
+  } ) {
+    const { id } = await params;
+    // await all teams
     return (
-        <div>
-            <h1>Teams</h1>
-            <p>List of your teams</p>
-            <p>List of pending teams</p>
-            <p>{userId}</p>
+        <div className="flex flex-col items-center justify-center gap-4 py-8 md:py-10">
+            <h1 className="text-2xl">{id}</h1>
+            <p className="text-lg">This is the ID page.</p>
             {/**
              * Nesto na ovu foru ce ovde da bude:
              * /*return (
@@ -35,5 +31,6 @@ export default async function Dashboard() {
              *
              */}
         </div>
+        
     );
 }

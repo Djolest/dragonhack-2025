@@ -4,15 +4,20 @@ import {Form} from "@heroui/form";
 import {Input} from "@heroui/input";
 import {Button} from "@heroui/button";
 import { useState } from "react";
+import { useUser } from "@/store/Context";
+
 
 
 export default function LogIn() {
   const [errors, setErrors] = useState({});
-
+  const { userID, setUserID } = useUser();
+  console.log(userID);
   const onSubmit = (e:any) => {
     e.preventDefault();
     const data = Object.fromEntries(new FormData(e.currentTarget));
-    
+    console.log(userID);
+    setUserID(200);
+    // setUserID(200);
     // Handle form submission and validation
     // Set errors if needed: setErrors({ username: 'Invalid username' });
   };
@@ -47,3 +52,4 @@ export default function LogIn() {
     </div>
   );
 }
+
