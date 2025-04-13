@@ -75,6 +75,20 @@ export async function login(email, password, feedback, setUser) {
 
 export const register = async(name, email, password, feedback, setUser) => {
     try {
+        // Check if the user already exists
+        const existingUser = await database.listDocuments(
+            dbId,
+            colUsers,
+            [
+                Query.equal('email', email),
+            ]
+        );
+        if (existingUser.total > 0) {
+            return {
+                error: 'User already exists'
+            };
+        }
+
         // Create a new user with the provided details
         const user = await database.createDocument(
             dbId,
@@ -87,10 +101,10 @@ export const register = async(name, email, password, feedback, setUser) => {
                 personality: '',
             }
         );
+
+        // Create a new user key
         feedback(200);
         setUser(user.$id);
-        // Return the created user object
-        //console.log(user.$id);
     } catch (error) {
         console.error('Registration error:', error);
         feedback(400);
@@ -159,6 +173,20 @@ export async function getTeams(userId, feedback, setTeams) {
 
 export async function createTeam(name, userId, feedback, setTeam) {
     try {
+        // Check if the team already exists
+        const existingTeam = await database.listDocuments(
+            dbId,
+            colTeams,
+            [
+                Query.equal('name', name),
+            ]
+        );
+        if (existingTeam.total > 0) {
+            return {
+                error: 'Team already exists'
+            };
+        }
+        
         // Create a new team
         const team = await database.createDocument(
             dbId,
@@ -303,6 +331,8 @@ export async function acceptInvite(teamId, userId, feedback) {
                 error: 'User is not a pending member of this team'
             };
         }
+
+        console.log('Pending membership:', pendingMembership.documents[0]);
         
         // Update the membership status
         await database.updateDocument(
@@ -314,6 +344,8 @@ export async function acceptInvite(teamId, userId, feedback) {
                 accepted: true
             }
         );
+
+        console.log('Membership updated:', pendingMembership.documents[0].$id);
         
         // Return success message
         feedback(200);
