@@ -140,15 +140,15 @@ export async function getTeams(userId) {
             return { teams: [] };
         }
         
-        // Query teams based on extracted IDs
-        const teams = await database.listDocuments(
-            dbId,
-            colTeams,
-            [Query.equal('$id', teamIds)]
+        // Fetch teams individually and combine results
+        const teamsPromises = teamIds.map(teamId => 
+            database.getDocument(dbId, colTeams, teamId)
         );
         
+        const teamsResults = await Promise.all(teamsPromises);
+        
         // Format team data for frontend
-        const formattedTeams = teams.documents.map(team => ({
+        const formattedTeams = teamsResults.documents.map(team => ({
             name: team.name,
             tid: team.$id
         }));
@@ -204,7 +204,7 @@ async function getMembers(teamId) {
             dbId,
             colTeamMemberships,
             [
-                Query.equal('teamId', teamId),
+                Query.equal('tid', teamId),
             ]
         );
         
@@ -212,11 +212,10 @@ async function getMembers(teamId) {
         const userIds = memberships.documents.map(membership => membership.userId);
         
         // Get user details for all members
-        const users = await database.listDocuments(
-            dbId,
-            colUsers,
-            [Query.equal('$id', userIds)]
+        const usersPromises = userIds.map(userId => 
+            database.getDocument(dbId, colUsers, userId)
         );
+        const users = await Promise.all(usersPromises);
         
         // Map users to required format with membership status
         const formattedUsers = users.documents.map(user => {
@@ -262,8 +261,8 @@ async function invite(email, teamId, userId) {
             dbId,
             colTeamMemberships,
             [
-                Query.equal('userId', targetUser.$id),
-                Query.equal('teamId', teamId)
+                Query.equal('uid', targetUser.$id),
+                Query.equal('tid', teamId)
             ]
         );
         
@@ -279,8 +278,8 @@ async function invite(email, teamId, userId) {
             colTeamMemberships,
             ID.unique(),
             {
-                userId: targetUser.$id,
-                teamId: teamId,
+                uid: targetUser.$id,
+                tid: teamId,
                 isPending: true,
                 accepted: false
             }
@@ -374,4 +373,4 @@ async function getPers(userId) {
     invite,
     makeMember,
     getPers
-};*/
+};
