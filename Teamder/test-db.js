@@ -95,7 +95,7 @@ async function runTests() {
         const teamCreation = await createTeam(testTeam.name, aliceId);
         logResult('Create Team', teamCreation);
         
-        const teamId = teamCreation.team?.tid;
+        const teamId = teamCreation.tid;
         
         if (!teamId) {
             throw new Error('Failed to create test team');
@@ -113,7 +113,7 @@ async function runTests() {
         
         // Step 7: Get team members
         console.log('7. Getting team members...');
-        const teamMembers = await getMembers(teamId, aliceId);
+        const teamMembers = await getMembers(teamId);
         logResult('Get Team Members', teamMembers);
         
         // Step 8: Approve Bob as a team member
@@ -123,7 +123,7 @@ async function runTests() {
         
         // Step 9: Get updated team members
         console.log('9. Getting updated team members...');
-        const updatedTeamMembers = await getMembers(teamId, aliceId);
+        const updatedTeamMembers = await getMembers(teamId);
         logResult('Get Updated Team Members', updatedTeamMembers);
         
         // Step 10: Get Bob's personality
