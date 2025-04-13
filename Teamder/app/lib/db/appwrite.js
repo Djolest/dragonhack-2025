@@ -331,8 +331,6 @@ export async function acceptInvite(teamId, userId, feedback) {
                 error: 'User is not a pending member of this team'
             };
         }
-
-        console.log('Pending membership:', pendingMembership.documents[0]);
         
         // Update the membership status
         await database.updateDocument(
