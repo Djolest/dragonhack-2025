@@ -55,7 +55,7 @@ export default function NavbarCustom(){
       <Navbar isBordered maxWidth="xl">
         <NavbarContent justify="start">
           <NavbarItem>
-            <Button color="primary" variant="flat" size="lg" onPress={() => {redirect("/login")}}>
+            <Button color="primary" variant="flat" size="lg" onPress={() => {redirect(pathname+"/questionare")}}>
               Redo Questionare
             </Button>
           </NavbarItem>

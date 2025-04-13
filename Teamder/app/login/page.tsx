@@ -22,7 +22,7 @@ export default function LogIn() {
     const { email, password } = data;
     console.log(email, password);
     login(email, password, setSuccess, setUserID);
-    setTimeout(() => {}, 300);
+    setTimeout(() => {}, 5000);
     if (userID.length > 0) {
       console.log("User ID: ", userID);
       // Redirect to the login page after successful registration
