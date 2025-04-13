@@ -1,7 +1,7 @@
 // Import required modules
 import { Account, Client, Databases, Storage, ID, Query } from 'appwrite';
-import { redirect } from 'next/navigation';
-import { revalidatePath } from 'next/cache';
+import { redirect } from 'next/navigation.js';
+import { revalidatePath } from 'next/cache.js';
 
 // Constants for database and collection IDs
 const dbUrl = process.env.NEXT_PUBLIC_APPWRITE_URL || 'https://your-appwrite-endpoint/v1';
@@ -90,7 +90,7 @@ export const register = async(name, email, password, feedback, setUser) => {
         feedback(200);
         setUser(user.$id);
         // Return the created user object
-        console.log(user.$id);
+        //console.log(user.$id);
     } catch (error) {
         console.error('Registration error:', error);
         feedback(400);
@@ -101,18 +101,16 @@ export const register = async(name, email, password, feedback, setUser) => {
     }
 }
 
-async function updatePers(personality, userId) {
+export async function updatePers(personality, userId, feedback) {
     try {
         // Update the user's personality in the database
         const updatedUser = await database.updateDocument(dbId, colUsers, userId, { personality });
         
         // Return the updated user object
-        return {
-            uid: updatedUser.$id,
-        }
+        feedback(200);
     } catch (error) {
         console.error('Update personality error:', error);
-        
+        feedback(400);
         // Return appropriate error message
         return {
             error: error.message || 'Update failed'
@@ -122,7 +120,7 @@ async function updatePers(personality, userId) {
 
 // ===== TEAMS =====
 
-export async function getTeams(userId) {
+export async function getTeams(userId, feedback, setTeams) {
     try {
         // Query team memberships for the user
         const memberships = await database.listDocuments(
@@ -134,35 +132,31 @@ export async function getTeams(userId) {
         );
         
         // Extract team IDs from memberships
-        const teamIds = memberships.documents.map(membership => membership.teamId);
-        
-        if (teamIds.length === 0) {
-            return { teams: [] };
+        const formattedTeams = memberships.documents.map(membership => ({
+            name: membership.tid.name,
+            tid: membership.tid.$id,
+        }));
+        console.log('Formatted teams:', formattedTeams);
+
+        // If no teams found, return empty array
+        if (formattedTeams.length === 0) {
+            feedback(200);
+            return [];
         }
         
-        // Fetch teams individually and combine results
-        const teamsPromises = teamIds.map(teamId => 
-            database.getDocument(dbId, colTeams, teamId)
-        );
-        
-        const teamsResults = await Promise.all(teamsPromises);
-        
-        // Format team data for frontend
-        const formattedTeams = teamsResults.documents.map(team => ({
-            name: team.name,
-            tid: team.$id
-        }));
-        
-        return { teams: formattedTeams };
+        // Set teams in state
+        feedback(200);
+        setTeams(formattedTeams);
     } catch (error) {
         console.error('Get teams error:', error);
+        feedback(400);
         return {
             error: error.message || 'Failed to fetch teams'
         };
     }
 }
 
-export async function createTeam(name, userId) {
+export async function createTeam(name, userId, feedback, setTeam) {
     try {
         // Create a new team
         const team = await database.createDocument(
@@ -186,18 +180,18 @@ export async function createTeam(name, userId) {
         );
         
         // Return the created team
-        return {
-            tid: team.$id,
-        };
+        feedback(200);
+        setTeam(team.$id);
     } catch (error) {
         console.error('Create team error:', error);
+        feedback(400);
         return {
             error: error.message || 'Failed to create team'
         };
     }
 }
 
-async function getMembers(teamId) {
+export async function getMembers(teamId, feedback, setMembers) {
     try {
         // First check if the user is a proper member of the team
         const memberships = await database.listDocuments(
@@ -209,36 +203,27 @@ async function getMembers(teamId) {
         );
         
         // Get all user IDs from memberships
-        const userIds = memberships.documents.map(membership => membership.userId);
-        
-        // Get user details for all members
-        const usersPromises = userIds.map(userId => 
-            database.getDocument(dbId, colUsers, userId)
-        );
-        const users = await Promise.all(usersPromises);
-        
-        // Map users to required format with membership status
-        const formattedUsers = users.documents.map(user => {
-            const membership = memberships.documents.find(m => m.userId === user.$id);
-            return {
-                name: user.name,
-                uid: user.$id,
-                tid: teamId,
-                isPending: membership.isPending,
-                accepted: membership.accepted
-            };
-        });
-        
-        return { users: formattedUsers };
+        const formattedUsers = memberships.documents.map(membership => ({
+            name: membership.uid.name,
+            uid: membership.uid.$id,
+            tid: membership.tid.$id,
+            isPending: membership.isPending,
+            accepted: membership.accepted
+        }));
+
+        // Set members in state
+        feedback(200);
+        setMembers(formattedUsers);
     } catch (error) {
         console.error('Get members error:', error);
+        feedback(400);
         return {
             error: error.message || 'Failed to fetch team members'
         };
     }
 }
 
-async function invite(email, teamId, userId) {
+export async function invite(email, teamId, feedback, setUser) {
     try {
         
         // Look up the user by email
@@ -286,12 +271,11 @@ async function invite(email, teamId, userId) {
         );
         
         // Return the invited user details
-        return {
-            user: {
-                name: targetUser.name,
-                id: targetUser.$id
-            }
-        };
+        feedback(200);
+        setUser({
+            name: targetUser.name,
+            uid: targetUser.$id,
+        });
     } catch (error) {
         console.error('Invite error:', error);
         return {
@@ -300,7 +284,48 @@ async function invite(email, teamId, userId) {
     }
 }
 
-async function makeMember(teamId, userId) {
+export async function acceptInvite(teamId, userId, feedback) {
+    try {
+        // Find the pending membership
+        const pendingMembership = await database.listDocuments(
+            dbId,
+            colTeamMemberships,
+            [
+                Query.equal('uid', userId),
+                Query.equal('tid', teamId),
+                Query.equal('isPending', true)
+            ]
+        );
+        
+        if (pendingMembership.documents.length === 0) {
+            return {
+                error: 'User is not a pending member of this team'
+            };
+        }
+        
+        // Update the membership status
+        await database.updateDocument(
+            dbId,
+            colTeamMemberships,
+            pendingMembership.documents[0].$id,
+            {
+                isPending: false,
+                accepted: true
+            }
+        );
+        
+        // Return success message
+        feedback(200);
+    } catch (error) {
+        console.error('Accept error:', error);
+        feedback(400);
+        return {
+            error: error.message || 'Failed to accept invitation'
+        };
+    }
+}
+
+export async function makeMember(teamId, userId, feedback) {
     try {
         
         // Find the pending membership
@@ -332,16 +357,18 @@ async function makeMember(teamId, userId) {
             }
         );
         
-        return { success: true };
+        // Return success message
+        feedback(200);
     } catch (error) {
         console.error('Make member error:', error);
+        feedback(400);
         return {
             error: error.message || 'Failed to update member status'
         };
     }
 }
 
-async function getPers(userId) {
+export async function getPers(userId, feedback, setPersonality) {
     try {
         // Get the user document
         const user = await database.getDocument(
@@ -350,27 +377,14 @@ async function getPers(userId) {
             userId
         );
         
-        // Return the personality data
-        return {
-            personality: user.personality || '{}'
-        };
+        // Set personality in state
+        feedback(200);
+        setPersonality(user.personality);
     } catch (error) {
         console.error('Get personality error:', error);
+        feedback(400);
         return {
             error: error.message || 'Failed to fetch personality data'
         };
     }
 }
-
-// Export all functions for use in your API routes
-/*module.exports = {
-    login,
-    register,
-    updatePers,
-    getTeams,
-    createTeam,
-    getMembers,
-    invite,
-    makeMember,
-    getPers
-};
