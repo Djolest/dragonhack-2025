@@ -10,6 +10,19 @@ import {
 } from "@heroui/react";
 import { redirect } from "next/navigation";
 import { usePathname } from "next/navigation"; // Import usePathname for path checking
+import {
+  Modal,
+  ModalContent,
+  ModalHeader,
+  ModalBody,
+  ModalFooter,
+  useDisclosure,
+  Checkbox,
+  Input,
+} from "@heroui/react";
+import { Form } from "@heroui/form";
+import { FormEvent } from "react";
+import { createTeam } from '@/app/lib/db/appwrite.js';
 
 export default function NavbarCustom(){
   //const isOnDashboard = false; // Replace with actual logic to determine if on dashboard
@@ -20,6 +33,22 @@ export default function NavbarCustom(){
   const isOnDashboardMember = pathname.startsWith("/dashboard/") && pathname.split("/").length === 5; // ovo je sa [id]/[team]/[member]
   //console.log(pathname.split("/").length);
   
+  const {isOpen, onOpen, onOpenChange} = useDisclosure();
+
+  function submitTeam(e: FormEvent<HTMLFormElement>) {
+    // Handle the team submission logic here
+    console.log("Team submitted");
+    e.preventDefault();
+    const data = Object.fromEntries(new FormData(e.currentTarget));
+    const { name } = data;
+    console.log(name);
+    const userId = pathname.split("/")[2];
+    console.log(userId);
+    createTeam(name, userId);
+
+    if (isOpen) onOpenChange();
+  }
+
   return (
     <div>
       { isOnDashboardID ?
@@ -39,7 +68,7 @@ export default function NavbarCustom(){
 
         <NavbarContent justify="end">
           <NavbarItem>
-            <Button color="primary" variant="flat" size="lg" onPress={() => {redirect("/login")}}>
+            <Button color="primary" variant="flat" size="lg" onPress={onOpen}>
               Make a Team
             </Button>
           </NavbarItem>
@@ -119,6 +148,32 @@ export default function NavbarCustom(){
         </NavbarContent>
       </Navbar>
       } 
+      <Modal isOpen={isOpen} placement="top-center" onOpenChange={onOpenChange}>
+        <ModalContent>
+          {(onClose) => (
+            <>
+              <ModalHeader className="flex flex-col gap-1">Make a Team</ModalHeader>
+              <ModalBody>
+                <Form 
+                  className="w-full max-w-xs flex flex-col gap-3"
+                  onSubmit={submitTeam}
+                >
+                  <Input
+                    label="name"
+                    labelPlacement="outside"
+                    name="name"
+                    placeholder="Enter the name of your team"
+                    isRequired
+                  />
+                  <Button type="submit" color="primary">
+                    Make
+                  </Button>
+                </Form>
+              </ModalBody>
+            </>
+          )}
+        </ModalContent>
+      </Modal>
     </div>
   );
 }

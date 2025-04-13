@@ -122,14 +122,14 @@ async function updatePers(personality, userId) {
 
 // ===== TEAMS =====
 
-async function getTeams(userId) {
+export async function getTeams(userId) {
     try {
         // Query team memberships for the user
         const memberships = await database.listDocuments(
             dbId,
             colTeamMemberships,
             [
-                Query.equal('userId', userId),
+                Query.equal('uid', userId),
             ]
         );
         
@@ -162,7 +162,7 @@ async function getTeams(userId) {
     }
 }
 
-async function createTeam(name, userId) {
+export async function createTeam(name, userId) {
     try {
         // Create a new team
         const team = await database.createDocument(
@@ -178,8 +178,8 @@ async function createTeam(name, userId) {
             colTeamMemberships,
             ID.unique(),
             {
-                userId: userId,
-                teamId: team.$id,
+                uid: userId,
+                tid: team.$id,
                 isPending: false,
                 accepted: true
             }
