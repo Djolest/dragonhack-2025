@@ -13,10 +13,16 @@ import { usePathname } from "next/navigation"; // Import usePathname for path ch
 
 export default function NavbarCustom(){
   //const isOnDashboard = false; // Replace with actual logic to determine if on dashboard
-  const isOnDashboard = usePathname() === "/dashboard"; // Example of how to check if on dashboard
+  // check if the current path is "/dashboard/[id]"
+  const pathname = usePathname();
+  const isOnDashboardID = pathname.startsWith("/dashboard/") && pathname.split("/").length === 3; // ovo je sa [id]
+  const isOnDashboardTeam = pathname.startsWith("/dashboard/") && pathname.split("/").length === 4; // ovo je sa [id]/[team]
+  const isOnDashboardMember = pathname.startsWith("/dashboard/") && pathname.split("/").length === 5; // ovo je sa [id]/[team]/[member]
+  //console.log(pathname.split("/").length);
+  
   return (
     <div>
-      { isOnDashboard ?
+      { isOnDashboardID ?
       <Navbar isBordered maxWidth="xl">
         <NavbarContent justify="start">
           <NavbarItem>
@@ -34,7 +40,53 @@ export default function NavbarCustom(){
         <NavbarContent justify="end">
           <NavbarItem>
             <Button color="primary" variant="flat" size="lg" onPress={() => {redirect("/login")}}>
-              Copy Link
+              Make a Team
+            </Button>
+          </NavbarItem>
+        </NavbarContent>
+      </Navbar>
+      :
+      isOnDashboardTeam ?
+      <Navbar isBordered maxWidth="xl">
+        <NavbarContent justify="start">
+          <NavbarItem>
+            <Button color="primary" variant="flat" size="lg" onPress={() => {redirect("/login")}}>
+              Back
+            </Button>
+          </NavbarItem>
+        </NavbarContent>
+
+        <NavbarBrand className="justify-center">
+          <Link className="font-bold text-inherit text-lg" href="/dashboard">Teamder</Link>
+        </NavbarBrand>
+
+        <NavbarContent justify="end">
+          <NavbarItem>
+            <Button color="primary" variant="flat" size="lg" onPress={() => {redirect("/login")}}>
+              Add Member
+            </Button>
+          </NavbarItem>
+        </NavbarContent>
+      </Navbar>
+      : 
+      isOnDashboardMember ?
+      <Navbar isBordered maxWidth="xl">
+        <NavbarContent justify="start">
+          <NavbarItem>
+            <Button color="primary" variant="flat" size="lg" onPress={() => {redirect("/login")}}>
+              Back
+            </Button>
+          </NavbarItem>
+        </NavbarContent>
+
+        <NavbarBrand className="justify-center">
+          <Link className="font-bold text-inherit text-lg" href="/dashboard">Teamder</Link>
+        </NavbarBrand>
+
+        <NavbarContent justify="end">
+          <NavbarItem>
+            <Button color="primary" variant="flat" size="lg" onPress={() => {redirect("/login")}}>
+              Remove Member
             </Button>
           </NavbarItem>
         </NavbarContent>
@@ -55,9 +107,9 @@ export default function NavbarCustom(){
 
         <NavbarContent justify="end">
           <NavbarItem>
-                <Button color="primary" variant="flat" size="lg" onPress={() => {redirect("/login")}}>
-                  Log In
-                </Button>
+            <Button color="primary" variant="flat" size="lg" onPress={() => {redirect("/login")}}>
+              Log In
+            </Button>
           </NavbarItem>
           <NavbarItem>
             <Button color="primary" variant="flat" size="lg" onPress={() => {redirect("/singup")}}>

@@ -9,6 +9,7 @@ export default async function ID( {
         <div className="flex flex-col items-center justify-center gap-4 py-8 md:py-10">
             <h1 className="text-2xl">{id}</h1>
             <p className="text-lg">This is the ID page.</p>
+            <p>List of all teams a user is in or is pending</p>
             {/**
              * Nesto na ovu foru ce ovde da bude:
              * /*return (
