@@ -1,14 +1,16 @@
 // Import required modules
-const { Client, Account, Databases, ID, Query } = require('node-appwrite');
+import { Account, Client, Databases, Storage, ID, Query } from 'appwrite';
+import { redirect } from 'next/navigation';
+import { revalidatePath } from 'next/cache';
 
 // Constants for database and collection IDs
-const dbUrl = process.env.APPWRITE_URL || 'https://your-appwrite-endpoint/v1';
-const dbProjectId = process.env.APPWRITE_PROJECT_ID || 'your-project-id';
-const dbId = process.env.APPWRITE_DB_ID || 'your-database-id';
-const colUsers = process.env.APPWEIRE_USERS || 'your-users-collection-id';
-const colUserKeys = process.env.APPWRITE_USER_KEYS || 'your-user-keys-collection-id';
-const colTeams = process.env.APPWRITE_TEAMS || 'your-teams-collection-id';
-const colTeamMemberships = process.env.APPWRITE_TEAM_MEMBERSHIPS || 'your-team-memberships-collection-id';
+const dbUrl = process.env.NEXT_PUBLIC_APPWRITE_URL || 'https://your-appwrite-endpoint/v1';
+const dbProjectId = process.env.NEXT_PUBLIC_APPWRITE_PROJECT_ID || 'your-project-id';
+const dbId = process.env.NEXT_PUBLIC_APPWRITE_DB_ID || 'your-database-id';
+const colUsers = process.env.NEXT_PUBLIC_APPWEIRE_USERS || 'your-users-collection-id';
+const colUserKeys = process.env.NEXT_PUBLIC_APPWRITE_USER_KEYS || 'your-user-keys-collection-id';
+const colTeams = process.env.NEXT_PUBLIC_APPWRITE_TEAMS || 'your-teams-collection-id';
+const colTeamMemberships = process.env.NEXT_PUBLIC_APPWRITE_TEAM_MEMBERSHIPS || 'your-team-memberships-collection-id';
 
 // Initialize AppWrite client
 const client = new Client()
@@ -74,18 +76,27 @@ async function login(email, password) {
     }
 }
 
-async function register(name, email, password) {
+export const register = async(name, email, password, feedback, setUser) => {
     try {
         // Create a new user with the provided details
-        const user = await account.create(ID.unique(), email, password, name);
-        
+        const user = await database.createDocument(
+            dbId,
+            colUsers,
+            ID.unique(), 
+            {
+                email: email,
+                password: password,
+                name: name,
+                personality: '',
+            }
+        );
+        feedback(200);
+        setUser(user.$id);
         // Return the created user object
-        return {
-            uid: user.uid,
-        };
+        console.log(user.$id);
     } catch (error) {
         console.error('Registration error:', error);
-        
+        feedback(400);
         // Return appropriate error message
         return {
             error: error.message || 'Registration failed'
@@ -356,7 +367,7 @@ async function getPers(userId) {
 }
 
 // Export all functions for use in your API routes
-module.exports = {
+/*module.exports = {
     login,
     register,
     updatePers,
@@ -366,4 +377,4 @@ module.exports = {
     invite,
     makeMember,
     getPers
-};
+};*/

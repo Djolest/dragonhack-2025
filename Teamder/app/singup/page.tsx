@@ -4,17 +4,34 @@ import {Form} from "@heroui/form";
 import {Input} from "@heroui/input";
 import {Button} from "@heroui/button";
 import { useState } from "react";
+import { FormEvent } from "react";
+import { register } from "@/app/lib/db/appwrite";
+import { useRouter } from 'next/navigation';
 
-export default function LogIn() {
+export default function SingUp() {
   const [errors, setErrors] = useState({});
+  const [success, setSuccess] = useState(0);
+  const [userID, setUserID] = useState("");
+  const router = useRouter();
 
-  const onSubmit = (e:any) => {
+  function onSubmit(e: FormEvent<HTMLFormElement>) {
+    console.log("Pozvan onSubmit")
     e.preventDefault();
     const data = Object.fromEntries(new FormData(e.currentTarget));
     
     // Handle form submission and validation
     // Set errors if needed: setErrors({ username: 'Invalid username' });
-  };
+    const { username, email, password } = data;
+    console.log(username, email, password);
+    register(username, email, password, setSuccess, setUserID);
+    setTimeout(() => {}, 200);
+    if (userID.length > 0) {
+      console.log("User ID: ", userID);
+      // Redirect to the login page after successful registration
+      router.push(`/dashboard/${userID}`);
+    }
+  }
+  
   return (
     <div>
       <h1>Sing up</h1>
@@ -25,21 +42,21 @@ export default function LogIn() {
       onSubmit={onSubmit}
     >
       <Input
-        label="Username"
+        label="username"
         labelPlacement="outside"
         name="username"
         placeholder="Enter your username"
         isRequired
       />
       <Input
-        label="Email"
+        label="email"
         labelPlacement="outside"
-        name="Email"
+        name="email"
         placeholder="Enter your email"
         isRequired
       />
       <Input
-        label="Password"
+        label="password"
         labelPlacement="outside"
         name="password"
         type="password"
@@ -50,6 +67,8 @@ export default function LogIn() {
         Sing Up
       </Button>
     </Form>
+    {success == 200 ? <p>Registration successful!</p> : null} 
+    {success == 400 ? <p>Registration failed. Please try again.</p> : null}
     </div>
   );
 }
